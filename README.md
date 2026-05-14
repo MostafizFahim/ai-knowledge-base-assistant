@@ -62,6 +62,26 @@ VITE_API_BASE_URL=http://localhost:5088
 
 The API allows the Vite dev origin through the `Cors:AllowedOrigins` setting in `backend/appsettings.json`.
 
+## Deploy The Frontend On Vercel
+
+The React/Vite frontend is ready for Vercel.
+
+Recommended Vercel project settings:
+
+- Root Directory: `frontend`
+- Framework Preset: `Vite`
+- Build Command: `npm run build`
+- Output Directory: `dist`
+- Environment Variable: `VITE_API_BASE_URL=https://your-backend-api-url`
+
+`frontend/vercel.json` includes a single-page app rewrite so routes like `/chat` and `/documents` work after refresh.
+
+## Deploy The Backend
+
+The backend is an ASP.NET Core Web API with SQLite. Deploy it to a .NET-capable host such as Azure App Service, Render, Railway, Fly.io, or a VPS, then set the deployed API URL as `VITE_API_BASE_URL` in Vercel.
+
+The current C# backend is not a Vercel-native serverless backend. To run the backend on Vercel, it would need to be rewritten to a Vercel-supported runtime such as Node/Express or Python/FastAPI, and SQLite should be replaced with a hosted database for production.
+
 ## Frontend Pages
 
 - Register
