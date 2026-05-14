@@ -8,6 +8,7 @@ obj/
 appsettings.Development.json
 frontend/node_modules/
 frontend/dist/
+frontend/.env
 frontend/.env.local
 frontend/*.tsbuildinfo
 frontend/vite.config.d.ts

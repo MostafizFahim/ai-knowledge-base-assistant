@@ -1,12 +1,12 @@
 # AI Knowledge Base Assistant MVP
 
-Cost-free starter MVP for an AI-powered personal knowledge base using ASP.NET Core Web API, EF Core, SQLite, JWT authentication, React, Vite, TypeScript, Tailwind CSS, and a simple keyword retrieval strategy.
+Cost-free starter MVP for an AI-powered personal knowledge base using ASP.NET Core Web API, EF Core, SQLite, JWT authentication, React, Vite, TypeScript, Tailwind CSS, and simple keyword retrieval.
 
 ## What It Includes
 
 - Register and login with JWT bearer tokens
 - SQLite persistence through Entity Framework Core
-- Per-user document storage
+- Per-user document storage and deletion
 - Automatic document chunking
 - Keyword-based retrieval of the top 5 matching chunks
 - Gemini API integration through `GEMINI_API_KEY`
@@ -14,54 +14,55 @@ Cost-free starter MVP for an AI-powered personal knowledge base using ASP.NET Co
 - React dashboard frontend with protected routes
 - Axios API client using `VITE_API_BASE_URL`
 - Document management, chat, and history screens
-- Beginner-friendly controllers, DTOs, services, and entities
 
 ## Project Structure
 
 ```text
 .
-├── Controllers/          ASP.NET Core API controllers
-├── Data/                 EF Core DbContext
-├── DTOs/                 API request and response models
-├── Entities/             EF Core entities
-├── Services/             Auth, document, retrieval, chat, Gemini services
-└── frontend/             React + Vite + TypeScript + Tailwind app
+|-- backend/              ASP.NET Core Web API
+|   |-- Controllers/      API controllers
+|   |-- Data/             EF Core DbContext
+|   |-- DTOs/             API request and response models
+|   |-- Entities/         EF Core entities
+|   `-- Services/         Auth, document, retrieval, chat, Gemini services
+`-- frontend/             React + Vite + TypeScript + Tailwind app
 ```
 
 ## Run The Backend
 
-Install the .NET 8 SDK, then from this folder run:
+Install the .NET 8 SDK, then from the repository root run:
 
 ```powershell
+cd backend
 $env:GEMINI_API_KEY="your-gemini-api-key"
 $env:JWT__Key="replace-with-a-long-random-secret-at-least-32-characters"
 $env:ASPNETCORE_ENVIRONMENT="Development"
 dotnet restore
-dotnet run --project KnowledgeBaseAssistant.Api.csproj
+dotnet run --project KnowledgeBaseAssistant.Api.csproj --urls http://localhost:5088
 ```
 
 The app creates `knowledgebase.db` automatically on first run. For a production app, replace `EnsureCreated` with EF Core migrations.
 
 ## Run The Frontend
 
-Install Node.js, then from this folder run:
+Install Node.js, then from the repository root run:
 
 ```powershell
 cd frontend
 copy .env.example .env
 npm install
-npm run dev
+npm run dev -- --host 127.0.0.1
 ```
 
-Set `VITE_API_BASE_URL` in `frontend/.env` to the backend URL shown by ASP.NET Core, for example:
+Set `VITE_API_BASE_URL` in `frontend/.env` to the backend URL:
 
 ```env
-VITE_API_BASE_URL=https://localhost:5001
+VITE_API_BASE_URL=http://localhost:5088
 ```
 
-The API allows the Vite dev origin through the `Cors:AllowedOrigins` setting in `appsettings.json`.
+The API allows the Vite dev origin through the `Cors:AllowedOrigins` setting in `backend/appsettings.json`.
 
-The frontend includes these pages:
+## Frontend Pages
 
 - Register
 - Login
@@ -70,6 +71,16 @@ The frontend includes these pages:
 - Add Document
 - Chat
 - History
+
+## API Endpoints
+
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+- `POST /api/documents`
+- `GET /api/documents`
+- `DELETE /api/documents/{id}`
+- `POST /api/chat/ask`
+- `GET /api/chat/history`
 
 ## API Flow
 
@@ -125,16 +136,6 @@ Content-Type: application/json
   "question": "What is the refund window?"
 }
 ```
-
-## Endpoints
-
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `POST /api/documents`
-- `GET /api/documents`
-- `DELETE /api/documents/{id}`
-- `POST /api/chat/ask`
-- `GET /api/chat/history`
 
 ## Notes
 
