@@ -28,16 +28,38 @@ Cost-free starter MVP for an AI-powered personal knowledge base using ASP.NET Co
 `-- frontend/             React + Vite + TypeScript + Tailwind app
 ```
 
+## Live Deployment
+
+- Frontend: `https://ai-knowledge-base-assistant-nu.vercel.app`
+- Backend: `https://ai-knowledge-base-assistant-production.up.railway.app`
+- Backend health check: `https://ai-knowledge-base-assistant-production.up.railway.app/health`
+
 ## Run The Backend
 
 Install the .NET 8 SDK, then from the repository root run:
 
 ```powershell
-cd backend
+cd "D:\OneDrive\Documents\New project\backend"
 $env:GEMINI_API_KEY="your-gemini-api-key"
 $env:JWT__Key="replace-with-a-long-random-secret-at-least-32-characters"
 $env:ASPNETCORE_ENVIRONMENT="Development"
 dotnet restore
+dotnet run --project KnowledgeBaseAssistant.Api.csproj --urls http://localhost:5088
+```
+
+Local Swagger URL:
+
+```text
+http://localhost:5088/swagger/index.html
+```
+
+If using Command Prompt instead of PowerShell:
+
+```cmd
+cd /d "D:\OneDrive\Documents\New project\backend"
+set GEMINI_API_KEY=your-gemini-api-key
+set JWT__Key=replace-with-a-long-random-secret-at-least-32-characters
+set ASPNETCORE_ENVIRONMENT=Development
 dotnet run --project KnowledgeBaseAssistant.Api.csproj --urls http://localhost:5088
 ```
 
@@ -48,7 +70,7 @@ The app creates `knowledgebase.db` automatically on first run. For a production 
 Install Node.js, then from the repository root run:
 
 ```powershell
-cd frontend
+cd "D:\OneDrive\Documents\New project\frontend"
 copy .env.example .env
 npm install
 npm run dev -- --host 127.0.0.1
@@ -58,6 +80,12 @@ Set `VITE_API_BASE_URL` in `frontend/.env` to the backend URL:
 
 ```env
 VITE_API_BASE_URL=http://localhost:5088
+```
+
+Local frontend URL:
+
+```text
+http://127.0.0.1:5173
 ```
 
 The API allows the Vite dev origin through the `Cors:AllowedOrigins` setting in `backend/appsettings.json`.
@@ -72,7 +100,7 @@ Recommended Vercel project settings:
 - Framework Preset: `Vite`
 - Build Command: `npm run build`
 - Output Directory: `dist`
-- Environment Variable: `VITE_API_BASE_URL=https://your-backend-api-url`
+- Environment Variable: `VITE_API_BASE_URL=https://ai-knowledge-base-assistant-production.up.railway.app`
 
 `frontend/vercel.json` includes a single-page app rewrite so routes like `/chat` and `/documents` work after refresh.
 
@@ -83,7 +111,7 @@ The backend is ready for Railway through `backend/Dockerfile`.
 Recommended Railway service settings:
 
 - Deploy from GitHub repo: `MostafizFahim/ai-knowledge-base-assistant`
-- Service Root Directory: `/backend`
+- Service Root Directory: `backend`
 - Builder: Dockerfile
 - Generate a public domain from Railway Networking settings
 
@@ -93,7 +121,7 @@ Required Railway variables:
 GEMINI_API_KEY=your-gemini-api-key
 JWT__Key=replace-with-a-long-random-secret-at-least-32-characters
 ASPNETCORE_ENVIRONMENT=Production
-Cors__AllowedOriginsCsv=https://your-vercel-frontend-url
+Cors__AllowedOriginsCsv=https://ai-knowledge-base-assistant-nu.vercel.app
 ```
 
 Optional Railway variable if using a persistent mounted volume at `/data`:
@@ -107,7 +135,7 @@ Without a persistent Railway volume or hosted Postgres database, SQLite data can
 After Railway gives you a backend URL, set this Vercel environment variable and redeploy the frontend:
 
 ```env
-VITE_API_BASE_URL=https://your-railway-backend-url
+VITE_API_BASE_URL=https://ai-knowledge-base-assistant-production.up.railway.app
 ```
 
 ## Frontend Pages
@@ -192,3 +220,4 @@ Content-Type: application/json
 - The default model is `gemini-2.5-flash`; change `Gemini:Model` if your account uses a different Gemini model.
 - Passwords are hashed with PBKDF2; raw passwords are never stored.
 - JWT and Gemini secrets should be set through environment variables in real deployments.
+- Never commit real `GEMINI_API_KEY` or `JWT__Key` values to GitHub. If a key is exposed, rotate it and update Railway/local environment variables.
