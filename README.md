@@ -76,11 +76,39 @@ Recommended Vercel project settings:
 
 `frontend/vercel.json` includes a single-page app rewrite so routes like `/chat` and `/documents` work after refresh.
 
-## Deploy The Backend
+## Deploy The Backend On Railway
 
-The backend is an ASP.NET Core Web API with SQLite. Deploy it to a .NET-capable host such as Azure App Service, Render, Railway, Fly.io, or a VPS, then set the deployed API URL as `VITE_API_BASE_URL` in Vercel.
+The backend is ready for Railway through `backend/Dockerfile`.
 
-The current C# backend is not a Vercel-native serverless backend. To run the backend on Vercel, it would need to be rewritten to a Vercel-supported runtime such as Node/Express or Python/FastAPI, and SQLite should be replaced with a hosted database for production.
+Recommended Railway service settings:
+
+- Deploy from GitHub repo: `MostafizFahim/ai-knowledge-base-assistant`
+- Service Root Directory: `/backend`
+- Builder: Dockerfile
+- Generate a public domain from Railway Networking settings
+
+Required Railway variables:
+
+```env
+GEMINI_API_KEY=your-gemini-api-key
+JWT__Key=replace-with-a-long-random-secret-at-least-32-characters
+ASPNETCORE_ENVIRONMENT=Production
+Cors__AllowedOriginsCsv=https://your-vercel-frontend-url
+```
+
+Optional Railway variable if using a persistent mounted volume at `/data`:
+
+```env
+ConnectionStrings__DefaultConnection=Data Source=/data/knowledgebase.db
+```
+
+Without a persistent Railway volume or hosted Postgres database, SQLite data can be lost between redeploys.
+
+After Railway gives you a backend URL, set this Vercel environment variable and redeploy the frontend:
+
+```env
+VITE_API_BASE_URL=https://your-railway-backend-url
+```
 
 ## Frontend Pages
 

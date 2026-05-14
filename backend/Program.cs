@@ -17,10 +17,19 @@ builder.Services.AddCors(options =>
         var allowedOrigins = builder.Configuration
             .GetSection("Cors:AllowedOrigins")
             .Get<string[]>()
-            ?? Array.Empty<string>();
+            ?.ToList()
+            ?? new List<string>();
+
+        var allowedOriginsCsv = builder.Configuration["Cors:AllowedOriginsCsv"];
+        if (!string.IsNullOrWhiteSpace(allowedOriginsCsv))
+        {
+            allowedOrigins.AddRange(
+                allowedOriginsCsv
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
+        }
 
         policy
-            .WithOrigins(allowedOrigins)
+            .WithOrigins(allowedOrigins.Distinct(StringComparer.OrdinalIgnoreCase).ToArray())
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -120,6 +129,13 @@ if (app.Environment.IsDevelopment())
 app.UseCors("Frontend");
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapGet("/health", () => Results.Ok(new
+{
+    status = "ok",
+    service = "KnowledgeBaseAssistant.Api",
+    timestampUtc = DateTime.UtcNow
+}));
 
 app.MapControllers();
 
