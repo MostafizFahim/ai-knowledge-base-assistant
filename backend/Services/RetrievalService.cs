@@ -1,6 +1,7 @@
 using System.Text.RegularExpressions;
 using KnowledgeBaseAssistant.Api.Data;
 using KnowledgeBaseAssistant.Api.DTOs.Chat;
+using KnowledgeBaseAssistant.Api.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace KnowledgeBaseAssistant.Api.Services;
@@ -28,21 +29,28 @@ public class RetrievalService : IRetrievalService
         CancellationToken cancellationToken)
     {
         var keywords = ExtractKeywords(question);
-        if (keywords.Count == 0)
-        {
-            return Array.Empty<ContextChunkDto>();
-        }
-
         var chunks = await _db.DocumentChunks
             .AsNoTracking()
             .Include(chunk => chunk.Document)
             .Where(chunk => chunk.Document != null && chunk.Document.UserId == userId)
             .ToListAsync(cancellationToken);
 
-        return chunks
+        if (chunks.Count == 0)
+        {
+            return Array.Empty<ContextChunkDto>();
+        }
+
+        if (keywords.Count == 0)
+        {
+            return GetFallbackChunks(chunks, limit);
+        }
+
+        var scoredChunks = chunks
             .Select(chunk =>
             {
-                var score = ScoreChunk(chunk.Content, keywords);
+                var score = ScoreChunk(chunk.Content, keywords)
+                    + ScoreChunk(chunk.Document?.Title ?? string.Empty, keywords) * 3;
+
                 return new ContextChunkDto
                 {
                     DocumentId = chunk.DocumentId,
@@ -58,6 +66,10 @@ public class RetrievalService : IRetrievalService
             .ThenBy(chunk => chunk.ChunkIndex)
             .Take(limit)
             .ToList();
+
+        return scoredChunks.Count > 0
+            ? scoredChunks
+            : GetFallbackChunks(chunks, limit);
     }
 
     private static IReadOnlyList<string> ExtractKeywords(string question)
@@ -80,5 +92,24 @@ public class RetrievalService : IRetrievalService
         }
 
         return score;
+    }
+
+    private static IReadOnlyList<ContextChunkDto> GetFallbackChunks(
+        IReadOnlyList<DocumentChunk> chunks,
+        int limit)
+    {
+        return chunks
+            .OrderByDescending(chunk => chunk.Document?.CreatedAtUtc)
+            .ThenBy(chunk => chunk.ChunkIndex)
+            .Take(limit)
+            .Select(chunk => new ContextChunkDto
+            {
+                DocumentId = chunk.DocumentId,
+                DocumentTitle = chunk.Document?.Title ?? string.Empty,
+                ChunkIndex = chunk.ChunkIndex,
+                Content = chunk.Content,
+                Score = 0
+            })
+            .ToList();
     }
 }
