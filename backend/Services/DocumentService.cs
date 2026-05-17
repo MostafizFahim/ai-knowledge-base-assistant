@@ -31,7 +31,7 @@ public class DocumentService : IDocumentService
         CancellationToken cancellationToken)
     {
         var title = request.Title.Trim();
-        var content = request.Content.Trim();
+        var content = TextContentNormalizer.NormalizeExtractedText(request.Content);
 
         if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(content))
         {
@@ -134,7 +134,8 @@ public class DocumentService : IDocumentService
 
     private static IReadOnlyList<string> SplitIntoChunks(string text)
     {
-        var words = Regex.Matches(text, @"\S+")
+        var normalizedText = TextContentNormalizer.NormalizeExtractedText(text);
+        var words = Regex.Matches(normalizedText, @"\S+")
             .Select(match => match.Value)
             .ToList();
 
@@ -174,7 +175,14 @@ public class DocumentService : IDocumentService
 
         using var pdf = PdfDocument.Open(memoryStream);
         var pages = pdf.GetPages()
-            .Select(page => page.Text?.Trim())
+            .Select(page =>
+            {
+                var words = page.GetWords()
+                    .Select(word => word.Text)
+                    .Where(word => !string.IsNullOrWhiteSpace(word));
+
+                return string.Join(' ', words).Trim();
+            })
             .Where(text => !string.IsNullOrWhiteSpace(text));
 
         var text = string.Join(Environment.NewLine + Environment.NewLine, pages);
@@ -183,7 +191,7 @@ public class DocumentService : IDocumentService
             throw new InvalidOperationException("No readable text was found in the PDF. Scanned image-only PDFs are not supported in this MVP.");
         }
 
-        return text;
+        return TextContentNormalizer.NormalizeExtractedText(text);
     }
 
     private static async Task<string> ExtractCsvTextAsync(IFormFile file, CancellationToken cancellationToken)
@@ -197,7 +205,7 @@ public class DocumentService : IDocumentService
             throw new InvalidOperationException("No readable text was found in the CSV file.");
         }
 
-        return NormalizeCsvForSearch(text);
+        return TextContentNormalizer.NormalizeExtractedText(NormalizeCsvForSearch(text));
     }
 
     private static string NormalizeCsvForSearch(string csvText)

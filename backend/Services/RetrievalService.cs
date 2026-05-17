@@ -48,7 +48,8 @@ public class RetrievalService : IRetrievalService
         var scoredChunks = chunks
             .Select(chunk =>
             {
-                var score = ScoreChunk(chunk.Content, keywords)
+                var normalizedContent = TextContentNormalizer.NormalizeExtractedText(chunk.Content);
+                var score = ScoreChunk(normalizedContent, keywords)
                     + ScoreChunk(chunk.Document?.Title ?? string.Empty, keywords) * 3;
 
                 return new ContextChunkDto
@@ -56,7 +57,7 @@ public class RetrievalService : IRetrievalService
                     DocumentId = chunk.DocumentId,
                     DocumentTitle = chunk.Document?.Title ?? string.Empty,
                     ChunkIndex = chunk.ChunkIndex,
-                    Content = chunk.Content,
+                    Content = normalizedContent,
                     Score = score
                 };
             })
@@ -107,7 +108,7 @@ public class RetrievalService : IRetrievalService
                 DocumentId = chunk.DocumentId,
                 DocumentTitle = chunk.Document?.Title ?? string.Empty,
                 ChunkIndex = chunk.ChunkIndex,
-                Content = chunk.Content,
+                Content = TextContentNormalizer.NormalizeExtractedText(chunk.Content),
                 Score = 0
             })
             .ToList();

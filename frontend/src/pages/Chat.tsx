@@ -75,7 +75,7 @@ export default function Chat() {
           {isLoading ? (
             <p className="muted">Retrieving context and calling Gemini...</p>
           ) : response ? (
-            <div className="rounded-md border border-slate-200 bg-slate-50 p-5 text-sm leading-7 text-slate-800">
+            <div className="whitespace-pre-wrap rounded-md border border-slate-200 bg-slate-50 p-5 text-sm leading-7 text-slate-800">
               {response.answer}
             </div>
           ) : (
@@ -108,7 +108,7 @@ export default function Chat() {
                     </span>
                   </div>
                   <h4 className="font-semibold text-slate-950">{chunk.documentTitle}</h4>
-                  <p className="mt-3 text-sm leading-6 text-slate-600">{chunk.content}</p>
+                  <p className="mt-3 whitespace-pre-wrap text-sm leading-6 text-slate-600">{chunk.content}</p>
                 </article>
               ))}
             </div>

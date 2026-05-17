@@ -40,7 +40,7 @@ public class GeminiService : IGeminiService
                     "user",
                     new[] { new GeminiPart(prompt) })
             },
-            new GeminiGenerationConfig(0.2, 800));
+            new GeminiGenerationConfig(0.25, 1800));
 
         using var httpRequest = new HttpRequestMessage(HttpMethod.Post, endpoint)
         {
@@ -82,6 +82,8 @@ public class GeminiService : IGeminiService
             If an answer is not stated directly but can be inferred from the context, explain that it is an inference and briefly show the reasoning.
             If the context is insufficient for either a direct answer or a reasonable inference, say: "I don't know based on the saved documents."
             Do not add outside facts, current events, personal knowledge, or assumptions that are not grounded in the context.
+            For questions about strengths, weaknesses, fit, suitability, or recommendations, provide a complete structured analysis with bullets.
+            Do not stop after a heading. Include the actual points under each heading.
             Keep the answer helpful, clear, and appropriately detailed for the question.
 
             Context:
