@@ -7,6 +7,7 @@ Cost-free starter MVP for an AI-powered personal knowledge base using ASP.NET Co
 - Register and login with JWT bearer tokens
 - SQLite persistence through Entity Framework Core
 - Per-user document storage and deletion
+- PDF and CSV document upload
 - Automatic document chunking
 - Keyword-based retrieval of the top 5 matching chunks
 - Gemini API integration through `GEMINI_API_KEY`
@@ -153,6 +154,7 @@ VITE_API_BASE_URL=https://ai-knowledge-base-assistant-production.up.railway.app
 - `POST /api/auth/register`
 - `POST /api/auth/login`
 - `POST /api/documents`
+- `POST /api/documents/upload`
 - `GET /api/documents`
 - `DELETE /api/documents/{id}`
 - `POST /api/chat/ask`
@@ -202,7 +204,18 @@ Content-Type: application/json
 }
 ```
 
-5. Ask a question:
+5. Upload a PDF or CSV document:
+
+```http
+POST /api/documents/upload
+Authorization: Bearer YOUR_JWT_TOKEN
+Content-Type: multipart/form-data
+
+title=Bangladesh Overview
+file=@overview.pdf
+```
+
+6. Ask a question:
 
 ```http
 POST /api/chat/ask
@@ -216,6 +229,8 @@ Content-Type: application/json
 ## Notes
 
 - This MVP uses keyword search, not embeddings or a vector database.
+- PDF uploads extract embedded text only; scanned image-only PDFs need OCR and are not supported in this MVP.
+- CSV uploads are converted into searchable text by reading the file content.
 - Gemini is instructed to answer only from retrieved document context.
 - The default model is `gemini-2.5-flash`; change `Gemini:Model` if your account uses a different Gemini model.
 - Passwords are hashed with PBKDF2; raw passwords are never stored.

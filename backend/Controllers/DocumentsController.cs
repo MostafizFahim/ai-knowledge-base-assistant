@@ -36,6 +36,25 @@ public class DocumentsController : ControllerBase
 
     }
 
+    [HttpPost("upload")]
+    [Consumes("multipart/form-data")]
+    [RequestSizeLimit(10 * 1024 * 1024)]
+    public async Task<ActionResult<DocumentListItemDto>> Upload(
+        [FromForm] UploadDocumentRequestDto request,
+        CancellationToken cancellationToken)
+    {
+        var userId = User.GetRequiredUserId();
+        try
+        {
+            var document = await _documentService.UploadAsync(userId, request, cancellationToken);
+            return Created($"/api/documents/{document.Id}", document);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
     [HttpGet]
     public async Task<ActionResult<IReadOnlyList<DocumentListItemDto>>> List(CancellationToken cancellationToken)
     {
