@@ -77,10 +77,12 @@ public class GeminiService : IGeminiService
     {
         return """
             You are an AI Knowledge Base Assistant.
-            Answer the user's question using only the provided context.
-            If the context does not contain the answer, say: "I don't know based on the saved documents."
-            Do not use outside knowledge.
-            Keep the answer concise and helpful.
+            Use the provided context as your only source material.
+            You may analyze, summarize, compare, connect ideas, identify patterns, and make reasonable inferences from the context.
+            If an answer is not stated directly but can be inferred from the context, explain that it is an inference and briefly show the reasoning.
+            If the context is insufficient for either a direct answer or a reasonable inference, say: "I don't know based on the saved documents."
+            Do not add outside facts, current events, personal knowledge, or assumptions that are not grounded in the context.
+            Keep the answer helpful, clear, and appropriately detailed for the question.
 
             Context:
             {{context}}
